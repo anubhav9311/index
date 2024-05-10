@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Dynamic Map on SharePoint</title>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+  <style>
+    #map {
+      height: 100%;
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    .infoWindow-content {
+      font-size: 16px;
+      font-weight: bold;
+      background-color: white;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      margin-top: 8px; /* Adjust this value based on your needs */
+    }
+    /* Hide the close button */
+    .gm-ui-hover-effect {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script>
+    let map;
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 3,
+        center: { lat: 25, lng: 20 },
+        mapTypeId: 'terrain'
+      });
+      
+      const locations = [
+      { name: "Aberdeen", lat: 57.1497, lng: -2.0943 },
+        { name: "Abu Dhabi", lat: 24.4667, lng: 54.3667 },
+        { name: "Chandigarh", lat: 30.7333, lng: 76.7794 },
+        { name: "Baku,Azerbaijan", lat: 40.2955, lng: 49.861454 },
+        { name: "Houston, Texas,USA", lat: 29.936, lng: -95.511 },    
+        { name: "Luanda, Angola", lat: -8.8272699, lng: 13.2439512 },
+        { name: "Selangor, Malaysia", lat: 3.2083304, lng: 101.304146 },
+        { name: "Newfoundland, Canada", lat: 47.517466, lng: -52.871237 },
+        { name: "Perth, Australia", lat: -32.0913465, lng: 115.8712477 },
+        { name: "Rio de Janeiro, Brazil", lat: -22.88899, lng: -43.12314 },
+        { name: "Stavanger, Norway", lat: 58.8878274, lng: 5.7035754 },
+        { name: " Ågotnes​,Norway", lat: 62, lng: 10 },
+        { name: "Sandsli, Norway", lat: 60.2942913, lng: 5.2813807 },
+        { name: "Burlington, Canada", lat:43.360176, lng:-79.802779  },
+        { name: "Dubai,UAE", lat:25.2163523, lng:55.2775634 },
+        { name: " Gloucester,UK", lat: 51.84074783325195, lng: -2.267955780029297 },
+        { name: "Hanover, Maryland, USA", lat: 39.1728488, lng:-76.7234566 },
+        { name: "Muscat,Sultanate of Oman", lat: 23.5882019, lng: 58.3829448 },
+        { name: "Panama City, USA", lat: 30.177981, lng: -85.729658 },
+        { name: "Pune,Mahārāshtra, India", lat: 18.8671, lng: 73.9801 },
+        { name: "Doha,Qatar", lat: 25.27932, lng: 51.52245 },
+        { name: "Fife, KY11 2XS, United Kingdom", lat: 56.020742, lng:-3.428879 },
+        { name: "Sale", lat: -38.1038613, lng:147.0918911   },
+        { name: "Sandnessjøen", lat: 66.02025, lng:12.65386  },
+        { name: "Stockton", lat: 54.548847 , lng: -1.317171  },
+        { name: "Swansea", lat:51.65636  , lng:-3.907329   },
+        { name: "Trondheim", lat:63.3952232  , lng: 10.3968354 },
+        { name: "Wilton", lat: 54.584103 , lng: -1.114397}, 
+        { name: "Houston", lat: 29.880336, lng: -95.5748894 },
+        { name: "Houston", lat: 29.879413, lng: -95.622322 },
+        { name: "Kakinada", lat: 33.1909246, lng: -101.380662 },
+        { name: "Kristiansund", lat: 63.1075703, lng: 7.7769849 },
+        { name: "Macaé", lat: -22.386545, lng: -41.8182182 },
+        { name: "Malaysia", lat: 3.0538, lng: 101.5304 },
+        { name: "Melbourne", lat: -37.8204905, lng: 144.9499682 },
+        { name: "Mongstad", lat: 60.7999137, lng: 5.013611 },
+        { name: "Morgan City", lat: 29.690444, lng: -91.176677 },
+        { name: "Mumbai", lat: 19.0737, lng: 72.9009 },
+        { name: "Niterói", lat: -22.88333, lng: -43.10361 },
+        { name: "Nodeland", lat: 58.1645909, lng: 7.8278928 },
+        { name: "Kakinada", lat: 16.9437385, lng:82.2350607 }
+      ];
+
+      locations.forEach(location => {
+        new google.maps.Marker({
+          map: map,
+          position: { lat: location.lat, lng: location.lng },
+        });
+      });
+
+      const specialLocations = [
+        { lat: 43.612839, lng: 71.214157, manager: "Anubhav-Developer" },
+        { lat: 34.052235, lng: -118.243683, manager: "Neil-Technologist" },
+        { lat: 25.664700, lng: -100.310890, manager: "Kartik-Manager" }
+      ];
+
+      specialLocations.forEach(location => {
+        const marker = new google.maps.Marker({
+          map: map,
+          position: { lat: location.lat, lng: location.lng },
+          title: location.name,
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 8,
+            fillColor: "#00FF00",
+            fillOpacity: 1,
+            strokeWeight: 2
+          }
+        });
+
+        const infoWindow = new google.maps.InfoWindow({
+          content: `<div class="infoWindow-content"> ${location.manager}</div>`
+        });
+
+        marker.addListener('mouseover', () => {
+          infoWindow.open(map, marker);
+        });
+        marker.addListener('mouseout', () => {
+          infoWindow.close();
+        });
+
+        // Blink effect
+        let scaleFactor = 8;
+        setInterval(() => {
+          scaleFactor = (scaleFactor == 8) ? 10 : 8; // Toggle between 8 and 10
+          marker.setIcon({
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: scaleFactor,
+            fillColor: "#00FF00",
+            fillOpacity: 1,
+            strokeWeight: 2
+          });
+        }, 1000);
+      });
+    }
+
+    // Load the Google Maps script
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg&callback=initMap`;
+    script.async = true;
+    document.head.appendChild(script);
+  </script>
+</body>
+</html>
+
+
+
+<!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Dynamic Map on SharePoint</title>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+  <style>
+    #map {
+      height: 100%;
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    .manager-card {
+      padding: 10px;
+      background-color: #90aac3;
+      opacity: 1;
+      border: 2px solid #080452;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+      width: 150px;
+      text-align: center;
+      font-size: 14px;
+      color: #fff; /* Optional: change text color */
+    }
+    /* Hide the close button */
+    .gm-ui-hover-effect {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script>
+    let map;
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 2,
+        center: { lat: 0, lng: 0 },
+        mapTypeId: 'terrain'
+      });
+      
+
+      const specialLocations = [
+        { lat: 43.612839, lng: 71.214157, manager: "Anubhav - Developer" },
+        { lat: 34.052235, lng: -118.243683, manager: "Neil - Technologist" },
+        { lat: 25.664700, lng: -100.310890, manager: "Kartik - Manager" }
+      ];
+
+      specialLocations.forEach(location => {
+        const marker = new google.maps.Marker({
+          map: map,
+          position: { lat: location.lat, lng: location.lng },
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 8,
+            fillColor: "#00FF00",
+            fillOpacity: 1,
+            strokeWeight: 2
+          }
+        });
+
+        const infoWindow = new google.maps.InfoWindow({
+          content: `<div class="manager-card">${location.manager}</div>`
+        });
+
+        marker.addListener('mouseover', () => {
+          infoWindow.open(map, marker);
+        });
+        marker.addListener('mouseout', () => {
+          infoWindow.close();
+        });
+
+        // Blink effect
+        let scaleFactor = 8;
+        setInterval(() => {
+          scaleFactor = (scaleFactor == 8) ? 10 : 8; // Toggle between sizes
+          marker.setIcon({
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: scaleFactor,
+            fillColor: "#00FF00",
+            fillOpacity: 1,
+            strokeWeight: 2
+          });
+        }, 1000);
+      });
+    }
+
+    // Load the Google Maps script
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg&callback=initMap`;
+    script.async = true;
+    document.head.appendChild(script);
+  </script>
+</body>
+</html> -->
